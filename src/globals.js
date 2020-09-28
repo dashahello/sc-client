@@ -1,3 +1,3 @@
-const API_ROOT = 'http://localhost:3005';
+const API_ROOT = `http://${window.location.hostname}:3005`;
 
 export { API_ROOT };
