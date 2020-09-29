@@ -115,21 +115,23 @@ function MessageForm() {
   }
 
   return (
-    <form onSubmit={onMessageSubmit}>
-      <input
-        type="text"
-        placeholder="message"
-        onChange={(evt) => setMessage(evt.target.value)}
-        value={message}
-      />
-      <input
-        type="text"
-        placeholder="key"
-        onChange={(evt) => setKey(evt.target.value)}
-        value={key}
-      />
-      <button type="submit">Send</button>
-    </form>
+    <div className="messageFormContainer">
+      <form onSubmit={onMessageSubmit}>
+        <input
+          type="text"
+          placeholder="message"
+          onChange={(evt) => setMessage(evt.target.value)}
+          value={message}
+        />
+        <input
+          type="text"
+          placeholder="key"
+          onChange={(evt) => setKey(evt.target.value)}
+          value={key}
+        />
+        <button type="submit">Send</button>
+      </form>
+    </div>
   );
 }
 
@@ -150,7 +152,7 @@ function getTimeString(timestamp) {
   );
 }
 
-function Message({ message, decryptionKey }) {
+function Message({ message, decryptionKey, currentUser }) {
   // console.log(message.message);
 
   const [decryptedMessage, setDecryptedMessage] = useState(null);
@@ -161,13 +163,20 @@ function Message({ message, decryptionKey }) {
       console.log(code);
       const msg = code.toString(CryptoJS.enc.Utf8);
       setDecryptedMessage(msg);
-    } catch (err) {}
+    } catch (err) {
+      setDecryptedMessage(null);
+    }
   }, [decryptionKey]);
 
   // const decryptedMessage = 'asd';
 
   return decryptedMessage ? (
-    <div>
+    <div
+      className={
+        'messageContainer' +
+        (currentUser._id === message.userId ? ' messageContainerOwner' : '')
+      }
+    >
       <div>
         {getTimeString(message.timestamp)} from: {message.username}
       </div>
@@ -176,7 +185,7 @@ function Message({ message, decryptionKey }) {
   ) : null;
 }
 
-function Messages() {
+function Messages({ currentUser }) {
   const [messages, setMessages] = useState([]);
   const [key, setKey] = useState('');
 
@@ -203,7 +212,12 @@ function Messages() {
         onChange={(evt) => setKey(evt.target.value)}
       />
       {messages.map((message) => (
-        <Message key={message._id} message={message} decryptionKey={key} />
+        <Message
+          currentUser={currentUser}
+          key={message._id}
+          message={message}
+          decryptionKey={key}
+        />
       ))}
     </div>
   );
@@ -213,7 +227,7 @@ function LoggedInApp({ currentUser }) {
   return (
     <div>
       <div>Logged in {currentUser.username}</div>
-      <Messages />
+      <Messages currentUser={currentUser} />
       <MessageForm />
     </div>
   );
